@@ -38,44 +38,10 @@ class Module implements ModuleDefinitionInterface
          */
         $config = include dirname(dirname(dirname(__DIR__))) . "/apps/config/config.php";
 
-
-        /**
-         * Error 404
-         */
         $di->set(
             'dispatcher',
             function() use ($di) {
-
-                $evManager = $di->getShared('eventsManager');
-
-                $evManager->attach(
-                    "dispatch:beforeException",
-                    function($event, $dispatcher, $exception)
-                    {
-                        if ($event->getType() == 'beforeNotFoundAction') {
-                            $dispatcher->forward(array(
-                                'module'=>'frontend',
-                                'controller' => 'error',
-                                'action' => 'show404'
-                            ));
-                            return false;
-                        }
-                        if ($event->getType() == 'beforeException') {
-                            switch ($exception->getCode()){
-                                case \Phalcon\Dispatcher::EXCEPTION_HANDLER_NOT_FOUND:
-                                case \Phalcon\Dispatcher::EXCEPTION_ACTION_NOT_FOUND:
-                                    $dispatcher->forward(array(
-                                        'module'=>'frontend',
-                                        'controller' => 'error',
-                                        'action' => 'show404'
-                                    ));
-                                    return false;
-                            }
-                        }
-                    }
-                );
                 $dispatcher = new Dispatcher();
-                $dispatcher->setEventsManager($evManager);
                 $dispatcher->setDefaultNamespace('Modules\Frontend\Controllers');
                 return $dispatcher;
             },
